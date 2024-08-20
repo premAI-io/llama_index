@@ -61,7 +61,7 @@ class TextToCypherRetriever(BasePGRetriever):
         self.allowed_output_fields = allowed_output_fields
         super().__init__(graph_store=graph_store, include_text=False)
 
-    def _parse_generated_cyher(self, cypher_query: str) -> str:
+    def _parse_generated_cypher(self, cypher_query: str) -> str:
         if self.cypher_validator is not None:
             return self.cypher_validator(cypher_query)
         return cypher_query
@@ -72,8 +72,8 @@ class TextToCypherRetriever(BasePGRetriever):
             filtered = {}
             for key, value in query_output.items():
                 if (
-                    key in self.allowed_output_fields
-                    or self.allowed_output_fields is None
+                    self.allowed_output_fields is None
+                    or key in self.allowed_output_fields
                 ):
                     filtered[key] = value
                 elif isinstance(value, (dict, list)):
@@ -101,8 +101,7 @@ class TextToCypherRetriever(BasePGRetriever):
             question=question,
         )
 
-        if self.allowed_output_fields is not None:
-            parsed_cypher_query = self._parse_generated_cyher(response)
+        parsed_cypher_query = self._parse_generated_cypher(response)
 
         query_output = self._graph_store.structured_query(parsed_cypher_query)
 
@@ -134,8 +133,7 @@ class TextToCypherRetriever(BasePGRetriever):
             question=question,
         )
 
-        if self.allowed_output_fields is not None:
-            parsed_cypher_query = self._parse_generated_cyher(response)
+        parsed_cypher_query = self._parse_generated_cypher(response)
 
         query_output = await self._graph_store.astructured_query(parsed_cypher_query)
 
